@@ -37,6 +37,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable,
@@ -209,10 +211,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Destroying Preview Output...")
     // This needs to run synchronously because after this method returns, the Preview Surface is no longer valid,
     // and trying to use it will crash. This might result in a short UI Thread freeze though.
-    runBlocking {
+    Log.i(TAG, "Destroying Preview Output...")
+    GlobalScope.launch(Dispatchers.Main) {
+      Log.d("DEBUG_CAMERA", "difference: 1")
       configure { config ->
         config.preview = CameraConfiguration.Output.Disabled.create()
       }
+      Log.d("DEBUG_CAMERA", "difference: 4")
     }
     Log.i(TAG, "Preview Output destroyed!")
   }
